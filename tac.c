@@ -1,16 +1,19 @@
 // tac.c
-// Jan Polasek, FIT VUT, IJC-DU2, 2026
-// Prelozeno: gcc (GCC) na macOS arm64
+// Jan Polasek, FSI VUT, IJC-DU2, 2026
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #define MAX_LINE_LEN 1024
+
+// Uzel seznamu reprezentujici jeden radek
 typedef struct node {
     char *line;
     struct node *next;
 } Node;
+
+// Seznam dynamicky alokovaných radku
 typedef struct list {
     Node *head;
     size_t size;
@@ -67,9 +70,10 @@ int main(int argc, char *argv[]) {
     List l;
     list_init(&l);
 
-    int limit = -1;     // -1 = bez limitu
+    int limit = -1;    
     FILE *f = stdin;
 
+    // zpracovani argumentu prikazove radky
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-l") == 0) {
             limit = atoi(argv[i + 1]);
@@ -100,19 +104,22 @@ int main(int argc, char *argv[]) {
                 fprintf(stderr, "Radek je prilis dlouhy, bude zkracen\n");
                 warning_printed = 1;
             }
-            
+         
             int c;
             while ((c = fgetc(f)) != '\n' && c != EOF)
                 ;
         }
 
-        char *line = strdup(buf);
+        size_t len = strlen(buf) + 1;
+        char *line = malloc(len);
         if (line == NULL) {
             fprintf(stderr, "Nedostatek pameti\n");
             list_free(&l);
             if (f != stdin) fclose(f);
             return 1;
         }
+        strcpy(line, buf);
+
         list_ins_first(&l, line);
         count++;
     }

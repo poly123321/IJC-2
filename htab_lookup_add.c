@@ -14,27 +14,30 @@ htab_pair_t *htab_lookup_add(htab_t *t, htab_key_t key) {
     size_t index = htab_hash_function(key) % t->arr_size;
     struct htab_item *item = t->arr[index];
 
-    // hledame jestli uz zaznam existuje
+
     while (item != NULL) {
         if (strcmp(item->pair.key, key) == 0) {
-            item->pair.value++;      // inkrementuj pri nalezu
+            item->pair.value++;     
             return &item->pair;
         }
         item = item->next;
     }
 
-    // nenasli jsme -> vytvorime novy zaznam
+   
     struct htab_item *new_item = malloc(sizeof(struct htab_item));
     if (new_item == NULL)
         return NULL;
 
-    new_item->pair.key = strdup(key);
-    if (new_item->pair.key == NULL) {
+    
+    char *key_copy = malloc(strlen(key) + 1);
+    if (key_copy == NULL) {
         free(new_item);
         return NULL;
     }
+    strcpy(key_copy, key);
+    new_item->pair.key = key_copy;
 
-    new_item->pair.value = 1;   // prvni vyskyt
+    new_item->pair.value = 1; 
 
     new_item->next = t->arr[index];
     t->arr[index] = new_item;
